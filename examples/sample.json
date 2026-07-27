@@ -1,0 +1,16 @@
+{
+    "terms":  [
+                  "blast"
+              ],
+    "chapters":  [
+                     {
+                         "passages":  [
+                                          {
+                                              "text":  "Blast, the gate is shut. Another blast followed.",
+                                              "speaker":  "Mara"
+                                          }
+                                      ],
+                         "title":  "One"
+                     }
+                 ]
+}
