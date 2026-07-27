@@ -15,6 +15,8 @@ def test_representative_sample_has_expected_result():
     assert report["version"] == 1
     assert report["project"] == PROJECT
     assert report["total"] == 2 and report["by_speaker"] == {"Mara": 2}
+    assert report["terms_matched"] == 1
+    assert report["per_1000_words"][next(iter(report["by_term"]))] > 0
     assert f'"project": "{PROJECT}"' in render_json(report)
     assert PROJECT.replace("-", " ").title() in render_markdown(report)
 
@@ -22,6 +24,20 @@ def test_representative_sample_has_expected_result():
 def test_missing_required_input_is_rejected():
     with pytest.raises(ValueError):
         analyze({})
+
+
+def test_zero_hit_terms_density_and_duplicate_validation():
+    report = analyze(
+        {
+            "terms": ["blast", "darn"],
+            "chapters": [{"title": "One", "passages": [{"text": "Blast this calm day."}]}],
+        }
+    )
+    assert report["total_words"] == 4
+    assert report["zero_hit_terms"] == ["darn"]
+    assert report["per_1000_words"] == {"blast": 250.0}
+    with pytest.raises(ValueError, match="unique"):
+        analyze({"terms": ["Blast", "blast"], "chapters": []})
 
 
 def test_cli_json_and_output_safety(tmp_path, capsys):

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "profanity-distribution-report"
-version = "1.0.0"
+version = "1.1.0"
 description = "Map user-supplied profanity terms by chapter, speaker, and nearby narrative context."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -35,4 +35,3 @@ omit = ["src/*/__main__.py"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "--cov=profanity_distribution_report --cov-branch --cov-report=term-missing --cov-fail-under=90"
-

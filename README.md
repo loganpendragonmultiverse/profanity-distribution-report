@@ -12,7 +12,7 @@ profanity-distribution examples/sample.json
 profanity-distribution examples/sample.json --format json --output report.json
 ```
 
-The example documents the complete v1 input shape. Markdown is intended for immediate review; JSON preserves structured evidence for scripts and later comparison. An existing output file is never overwritten.
+The example documents the complete input shape. Version 1.1 adds total word counts, per-1,000-word rates, matched-term coverage, and a zero-hit list so an intentionally broad custom catalog can be audited. Markdown is intended for immediate review; JSON preserves structured evidence for scripts and later comparison. An existing output file is never overwritten.
 
 ## Privacy and platforms
 
