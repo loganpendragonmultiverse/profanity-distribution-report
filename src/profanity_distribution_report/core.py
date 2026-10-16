@@ -19,12 +19,22 @@ def _profanity(data: dict[str, Any]) -> dict[str, Any]:
     terms = [str(term).casefold().strip() for term in _require(data, "terms") if str(term).strip()]
     if len(terms) != len(set(terms)):
         raise ValueError("terms must be unique ignoring case")
+    include_rates = data.get("include_group_rates", False)
+    if not isinstance(include_rates, bool):
+        raise TypeError("include_group_rates must be a boolean")
+    chapter_words: Counter[str] = Counter()
+    speaker_words: Counter[str] = Counter()
     occurrences = []
     total_words = 0
     for chapter in data.get("chapters", []):
+        chapter_label = str(chapter.get("title", "Untitled"))
+        chapter_words[chapter_label] += 0
         for passage in chapter.get("passages", []):
             text = str(passage.get("text", ""))
-            total_words += len(re.findall(r"\b\w+\b", text))
+            word_count = len(re.findall(r"\b\w+\b", text))
+            total_words += word_count
+            chapter_words[chapter_label] += word_count
+            speaker_words[str(passage.get("speaker", "Narration"))] += word_count
             for term in terms:
                 for match in re.finditer(f"(?<!\\w){re.escape(term)}(?!\\w)", text, re.IGNORECASE):
                     occurrences.append(
@@ -36,7 +46,7 @@ def _profanity(data: dict[str, Any]) -> dict[str, Any]:
                         }
                     )
     by_term = Counter(item["term"] for item in occurrences)
-    return {
+    report = {
         "total": len(occurrences),
         "total_words": total_words,
         "terms_requested": len(terms),
@@ -51,6 +61,19 @@ def _profanity(data: dict[str, Any]) -> dict[str, Any]:
         "by_speaker": dict(Counter(item["speaker"] for item in occurrences)),
         "occurrences": occurrences,
     }
+
+    if include_rates:
+        for group, denominators in [("chapter", chapter_words), ("speaker", speaker_words)]:
+            hits = Counter(item[group] for item in occurrences)
+            report[f"{group}_rates"] = {
+                label: {
+                    "total_words": words,
+                    "total": hits[label],
+                    "per_1000_words": round(hits[label] * 1000 / words, 3) if words else 0,
+                }
+                for label, words in denominators.items()
+            }
+    return report
 
 
 def analyze(data: dict[str, Any]) -> dict[str, Any]:

@@ -38,3 +38,13 @@ python -m build
 The project is feature-complete for its documented v1 scope. Maintenance focuses on correctness, security, compatibility, and well-supported input improvements.
 
 Part of the [Logan Pendragon Forge open-source collection](https://www.loganpendragonforge.com/open-source/). Licensed under the [MIT License](LICENSE).
+
+## Version 1.2.0: chapter and speaker rates
+
+Set `include_group_rates` to `true` to add `chapter_rates` and `speaker_rates`. Each label maps to `total_words`, matched occurrence `total`, and `per_1000_words` rounded to three decimals. Denominators count the same Unicode word tokens as the global count. Repeated chapter titles and speaker labels intentionally aggregate; every passage contributes once, including passages without hits. Empty chapters and speakers with empty passages receive zero denominators and zero rates. A speaker absent from all passages has no row. Existing global fields, literal term matching and default output are unchanged.
+
+Try the synthetic example:
+
+```bash
+profanity-distribution examples/feature.json --format json
+```

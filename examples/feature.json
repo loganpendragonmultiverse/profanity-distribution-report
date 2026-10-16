@@ -1,0 +1,26 @@
+{
+  "terms": [
+    "blast"
+  ],
+  "chapters": [
+    {
+      "title": "Short",
+      "passages": [
+        {
+          "speaker": "Mara",
+          "text": "blast now"
+        }
+      ]
+    },
+    {
+      "title": "Long",
+      "passages": [
+        {
+          "speaker": "Mara",
+          "text": "a calm long day"
+        }
+      ]
+    }
+  ],
+  "include_group_rates": true
+}
