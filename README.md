@@ -48,3 +48,9 @@ Try the synthetic example:
 ```bash
 profanity-distribution examples/feature.json --format json
 ```
+
+## Version 1.2.1: unicode term matching and checked input
+
+Catalog entries must be non-empty strings in a non-empty `terms` list; chapters and passages must be lists of objects, and supplied titles, speakers and text must be strings. Missing chapter/passages lists and missing text retain their empty defaults. Matching uses the original trimmed literal with Python Unicode case-insensitive regex semantics and word-edge guards, while report keys and duplicate checks retain case-folded catalog labels. This fixes terms such as `Straße` and `İ` without treating every multi-character case-fold expansion as an equivalent match.
+
+Invalid JSON shapes and option types produce a concise `error:` diagnostic and exit status 2. A report is created exclusively: existing files, directories and symbolic links (including dangling links) are refused, and the input is never overwritten. Output parent directories must already exist. This prevents replacing an existing output leaf; it does not promise protection against hostile concurrent replacement of parent directories.
