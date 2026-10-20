@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "profanity-distribution-report"
-version = "1.2.0"
+version = "1.2.1"
 description = "Map user-supplied profanity terms by chapter, speaker, and nearby narrative context."
 readme = "README.md"
 requires-python = ">=3.10"

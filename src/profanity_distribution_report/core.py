@@ -8,17 +8,34 @@ from typing import Any
 PROJECT = "profanity-distribution-report"
 
 
-def _require(data: dict[str, Any], key: str) -> Any:
-    value = data.get(key)
-    if value is None or value == "" or value == []:
-        raise ValueError(f"{key} is required")
-    return value
-
-
 def _profanity(data: dict[str, Any]) -> dict[str, Any]:
-    terms = [str(term).casefold().strip() for term in _require(data, "terms") if str(term).strip()]
+    raw_terms = data.get("terms")
+    if not isinstance(raw_terms, list) or not raw_terms:
+        raise ValueError("terms must be a non-empty list of non-empty strings")
+    if any(not isinstance(term, str) or not term.strip() for term in raw_terms):
+        raise ValueError("terms must be a non-empty list of non-empty strings")
+    literals = [term.strip() for term in raw_terms]
+    terms = [term.casefold() for term in literals]
     if len(terms) != len(set(terms)):
         raise ValueError("terms must be unique ignoring case")
+    chapters = data.get("chapters", [])
+    if not isinstance(chapters, list):
+        raise TypeError("chapters must be a list of objects")
+    for chapter in chapters:
+        if not isinstance(chapter, dict):
+            raise TypeError("each chapter must be an object")
+        if "title" in chapter and not isinstance(chapter["title"], str):
+            raise TypeError("chapter title must be a string")
+        passages = chapter.get("passages", [])
+        if not isinstance(passages, list):
+            raise TypeError("passages must be a list of objects")
+        for passage in passages:
+            if not isinstance(passage, dict):
+                raise TypeError("each passage must be an object")
+            if any(
+                key in passage and not isinstance(passage[key], str) for key in ("text", "speaker")
+            ):
+                raise ValueError("passage text and speaker must be strings")
     include_rates = data.get("include_group_rates", False)
     if not isinstance(include_rates, bool):
         raise TypeError("include_group_rates must be a boolean")
@@ -26,7 +43,7 @@ def _profanity(data: dict[str, Any]) -> dict[str, Any]:
     speaker_words: Counter[str] = Counter()
     occurrences = []
     total_words = 0
-    for chapter in data.get("chapters", []):
+    for chapter in chapters:
         chapter_label = str(chapter.get("title", "Untitled"))
         chapter_words[chapter_label] += 0
         for passage in chapter.get("passages", []):
@@ -35,8 +52,10 @@ def _profanity(data: dict[str, Any]) -> dict[str, Any]:
             total_words += word_count
             chapter_words[chapter_label] += word_count
             speaker_words[str(passage.get("speaker", "Narration"))] += word_count
-            for term in terms:
-                for match in re.finditer(f"(?<!\\w){re.escape(term)}(?!\\w)", text, re.IGNORECASE):
+            for term, literal in zip(terms, literals):
+                for match in re.finditer(
+                    f"(?<!\\w){re.escape(literal)}(?!\\w)", text, re.IGNORECASE
+                ):
                     occurrences.append(
                         {
                             "term": term,
@@ -77,6 +96,8 @@ def _profanity(data: dict[str, Any]) -> dict[str, Any]:
 
 
 def analyze(data: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(data, dict):
+        raise TypeError("input must be a JSON object")
     return {"version": 1, "project": PROJECT, **_profanity(data)}
 
 
